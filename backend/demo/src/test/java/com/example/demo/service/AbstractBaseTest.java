@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.config.SecurityConfig;
+import com.example.demo.event.ListenerConfiguration;
 import com.example.demo.handle.HandleAccessDenied;
 import com.example.demo.handle.HandleAuthenticationEntryPoint;
 import com.example.demo.jwt.JwtAuthFilter;
@@ -54,7 +55,8 @@ abstract class AbstractBaseTest {
             JwtService.class,
             HandleAuthenticationEntryPoint.class,
             HandleAccessDenied.class,
-            ConfigSchedule.class
+            ConfigSchedule.class,
+            ListenerConfiguration.class
     })
     @EntityScan(basePackages = "com.example.demo.entity") // Scan entity để JPA hoạt động
     @EnableJpaRepositories(basePackages = "com.example.demo.repository") // Enable JPA repo
