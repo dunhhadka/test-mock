@@ -6,6 +6,7 @@ import com.example.demo.handle.HandleAuthenticationEntryPoint;
 import com.example.demo.jwt.JwtAuthFilter;
 import com.example.demo.jwt.JwtService;
 import com.example.demo.repository.StoreRepository;
+import com.example.demo.schedule.ConfigSchedule;
 import com.example.demo.security.CustomUserDetailService;
 import lombok.extern.slf4j.Slf4j;
 import org.mockito.Mockito;
@@ -25,30 +26,41 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import javax.sql.DataSource;
 
 @Slf4j
+// Cấu hình Spring test với JUnit 5
 @SpringJUnitConfig(
         initializers = ConfigDataApplicationContextInitializer.class,
-        classes = AbstractBaseTest.BaseConfiguration.class
+        classes = AbstractBaseTest.BaseConfiguration.class // Load cấu hình test custom
 )
+// Ghi đè một số cấu hình trong application.properties chỉ dành cho môi trường test
 @TestPropertySource(properties = {
         "spring.jpa.hibernate.ddl-auto=update",
         "spring.jpa.properties.hibernate.show_sql=true",
         "spring.jpa.properties.hibernate.format_sql=true"
 })
+// Lớp abstract dùng làm base cho các test class khác
 abstract class AbstractBaseTest {
 
+    // Cấu hình Spring cho các test case
     @TestConfiguration
     @ImportAutoConfiguration({
-            HibernateJpaAutoConfiguration.class,
-            TransactionAutoConfiguration.class
+            HibernateJpaAutoConfiguration.class,        // Tự động cấu hình Hibernate JPA
+            TransactionAutoConfiguration.class          // Tự động cấu hình Transaction
     })
-    @Import({SecurityConfig.class, StoreMockConfiguration.class,
-            CustomUserDetailService.class, JwtAuthFilter.class, JwtService.class,
-            HandleAuthenticationEntryPoint.class, HandleAccessDenied.class
+    @Import({ // Import các bean cần thiết cho security và JWT vào context test
+            SecurityConfig.class,
+            StoreMockConfiguration.class,
+            CustomUserDetailService.class,
+            JwtAuthFilter.class,
+            JwtService.class,
+            HandleAuthenticationEntryPoint.class,
+            HandleAccessDenied.class,
+            ConfigSchedule.class
     })
-    @EntityScan(basePackages = "com.example.demo.entity")
-    @EnableJpaRepositories(basePackages = "com.example.demo.repository")
+    @EntityScan(basePackages = "com.example.demo.entity") // Scan entity để JPA hoạt động
+    @EnableJpaRepositories(basePackages = "com.example.demo.repository") // Enable JPA repo
     static class BaseConfiguration {
 
+        // Bean cấu hình datasource H2 in-memory cho test
         @Bean
         public DataSource dataSource(DataSourceProperties dataSourceProperties) {
             return dataSourceProperties
@@ -60,15 +72,24 @@ abstract class AbstractBaseTest {
         }
     }
 
+    // Cấu hình các bean mock dùng trong test
     @TestConfiguration
     static class StoreMockConfiguration {
 
+        // Mock StoreService
         @Bean
         StoreService storeService() {
             return logAndMock(StoreService.class);
         }
+
+        // Mock HistoryProductService
+        @Bean
+        HistoryProductService historyProductService() {
+            return logAndMock(HistoryProductService.class);
+        }
     }
 
+    // Hàm dùng chung để tạo mock và log ra class đang được mock
     public static <T> T logAndMock(Class<T> clazz) {
         log.info("Using mock: {}", clazz.getName());
         return Mockito.mock(clazz);

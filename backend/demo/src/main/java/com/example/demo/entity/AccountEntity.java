@@ -6,7 +6,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "accounts")
-@Builder
+@Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

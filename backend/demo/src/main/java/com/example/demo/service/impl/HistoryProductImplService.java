@@ -28,62 +28,46 @@ public class HistoryProductImplService implements HistoryProductService {
     private final ProductRepository productRepository;
 
     public HistoryProductImplService(HistoryProductRepository historyProductRepository,
-            ProductRepository productRepository) {
+                                     ProductRepository productRepository) {
         this.historyProductRepository = historyProductRepository;
         this.productRepository = productRepository;
     }
 
     @Override
     public BaseResponse getAllHistoryProduct(int pageNumber, int pageSize) {
-        try {
-            Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNumber);
-            Page<HistoryEntity> historyPage = historyProductRepository.findAll(pageable);
-            List<HistoryProductResponse> historyProductResponses = historyPage.getContent().stream().map(this::entityToResponse).collect(Collectors.toList());
+        Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNumber);
+        Page<HistoryEntity> historyPage = historyProductRepository.findAll(pageable);
+        List<HistoryProductResponse> historyProductResponses = historyPage.getContent().stream().map(this::entityToResponse).collect(Collectors.toList());
 
-            Page<HistoryProductResponse> historyProductResponsePage = new PageImpl<>(
-                    historyProductResponses, pageable, historyPage.getTotalElements());
+        Page<HistoryProductResponse> historyProductResponsePage = new PageImpl<>(
+                historyProductResponses, pageable, historyPage.getTotalElements());
 
-            return BaseResponse.builder()
-                    .statusCode(HttpStatus.OK.value())
-                    .message("Danh sách lịch sử xuất nhập kho")
-                    .data(historyProductResponsePage)
-                    .build();
-        } catch (Exception e) {
-            return BaseResponse.builder()
-                    .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi xuất danh sách lịch sử xuất nhập kho")
-                    .data(null)
-                    .build();
-        }
+        return BaseResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Danh sách lịch sử xuất nhập kho")
+                .data(historyProductResponsePage)
+                .build();
     }
 
     @Override
     public BaseResponse searchByNameAndAction(int pageNumber, int pageSize, String productName, String action,
-            String orderBy) {
-        try {
-            Pageable pageable = PageRequest.of(pageNumber, pageSize);
-            Page<HistoryEntity> historyPage = historyProductRepository.findByNameAndAction(productName, action, orderBy,
-                    pageable);
+                                              String orderBy) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<HistoryEntity> historyPage = historyProductRepository.findByNameAndAction(productName, action, orderBy,
+                pageable);
 
-            List<HistoryProductResponse> historyProductResponses = historyPage.getContent().stream().map(history -> {
-                return this.entityToResponse(history);
-            }).collect(Collectors.toList());
+        List<HistoryProductResponse> historyProductResponses = historyPage.getContent().stream()
+                .map(this::entityToResponse)
+                .collect(Collectors.toList());
 
-            Page<HistoryProductResponse> historyProductResponsePage = new PageImpl<>(
-                    historyProductResponses, pageable, historyPage.getTotalElements());
+        Page<HistoryProductResponse> historyProductResponsePage = new PageImpl<>(
+                historyProductResponses, pageable, historyPage.getTotalElements());
 
-            return BaseResponse.builder()
-                    .statusCode(HttpStatus.OK.value())
-                    .message("Tìm kiếm và lọc lịch sử thành công!")
-                    .data(historyProductResponsePage)
-                    .build();
-        } catch (Exception e) {
-            return BaseResponse.builder()
-                    .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi tìm kiếm và lọc lịch sử!")
-                    .data(null)
-                    .build();
-        }
+        return BaseResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Tìm kiếm và lọc lịch sử thành công!")
+                .data(historyProductResponsePage)
+                .build();
     }
 
     @Override

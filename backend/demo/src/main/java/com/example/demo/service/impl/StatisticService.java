@@ -44,14 +44,14 @@ public class StatisticService {
         Pageable pageable = PageRequest.of(productParams.getPageNumber() - 1, productParams.getPageSize());
         Page<Object[]> objects = orderServiceRepository.statisticService(productParams, pageable);
         List<StatisticServices> statisticServices = objects.stream().map(objects1 -> {
-            StatisticServices.StatisticServicesBuilder builder = StatisticServices.builder()
-                    .code((String) objects1[1])
-                    .name((String) objects1[3])
-                    .price((Double) objects1[4])
+            StatisticServices.StatisticServicesBuilder builder = StatisticServices.builder();
+//                    .code((String) objects1[1])
+//                    .name((String) objects1[3])
+//                    .price((Double) objects1[4])
                     // .salaryDispatcher((Double) objects1[5])
                     // .salaryRepairer((Double) objects1[6])
                     // .profit((Double) objects1[7])
-                    .income((Double) objects1[5]);
+//                    .income((Double) objects1[5]);
 
             // Kiểm tra và ép kiểu từ BigDecimal sang Long nếu cần
             if (objects1[0] instanceof BigDecimal) {
@@ -108,9 +108,9 @@ public class StatisticService {
                     .name((String) objects1[2])
                     .salary((Double) objects1[3])
                     .type((String) objects1[4])
-                    .incomeService((Double) objects1[5] == null ? 0 : (Double) objects1[5])
+//                    .incomeService((Double) objects1[5] == null ? 0 : (Double) objects1[5])
                     .build();
-            statisticEmployees1.setTotal(statisticEmployees1.getIncomeService() + statisticEmployees1.getSalary());
+//            statisticEmployees1.setTotal(statisticEmployees1.getIncomeService() + statisticEmployees1.getSalary());
             return statisticEmployees1;
         }).collect(Collectors.toList());
         return BaseResponse.builder()

@@ -94,7 +94,6 @@ public class OrderImplService implements OrderService {
                 .build();
     }
 
-    @Transactional
     public OrderEntity createOrUpdate(InsertOrder insertOrder, Long orderId) {
         if (orderId != null) {
             orderRepository.findByIdAndTypeIsOrder(orderId).orElseThrow(() -> {
@@ -205,7 +204,7 @@ public class OrderImplService implements OrderService {
                     .getAccount());
             // save order to table
         }
-        // employeeRepository.save(employeeRepairer);
+//        employeeRepository.save(employeeRepairer);
         order.setIsActive(true);
         return orderRepository.save(order);
     }

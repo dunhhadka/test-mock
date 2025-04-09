@@ -35,9 +35,9 @@ public interface OrderServiceRepository extends BaseRepository<OrderServiceEntit
                         "    order_service AS o_s " +
                         "INNER JOIN " +
                         "    services AS s ON o_s.service_id = s.id " +
-                        "WHERE " +
-                        "(:#{#params.startTime} is null or :#{#params.endTime} is null or " +
-                        "o_s.create_date between :#{#params.startTime} and :#{#params.endTime}) " +
+//                        "WHERE " +
+//                        "(:#{#params.startTime} is null or :#{#params.endTime} is null or " +
+//                        "o_s.create_date between :#{#params.startTime} and :#{#params.endTime}) " +
                         "GROUP BY " +
                         "    s.code, o_s.service_id, o_s.name, o_s.price " +
                         "ORDER BY " +
