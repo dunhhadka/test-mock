@@ -28,7 +28,7 @@ public class StoreImplService implements StoreService {
     @Override
     public BaseResponse create(StoreRequest storeRequest) {
         StoreEntity store = new StoreEntity();
-        if (storeRepository.findAll().size() != 0) {
+        if (!storeRepository.findAll().isEmpty()) {
             store = storeRepository.findById(1L).get();
         }
         store.setName(storeRequest.getName());

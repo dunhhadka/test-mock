@@ -1,6 +1,5 @@
-package com.example.demo.service;
+package com.example.demo.service.dung;
 
-import com.example.demo.exception.BaseException;
 import com.example.demo.exception.EntityNotFoundException;
 import com.example.demo.model.BaseResponse;
 import com.example.demo.model.request.HistoryDetail;
@@ -8,9 +7,11 @@ import com.example.demo.model.request.HistoryProductRequest;
 import com.example.demo.model.response.HistoryProductResponse;
 import com.example.demo.repository.HistoryProductRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.service.AbstractBaseTest;
 import com.example.demo.service.impl.HistoryProductImplService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -139,5 +140,106 @@ public class HistoryProductServiceTest extends AbstractBaseTest {
 
         Assertions.assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         Assertions.assertEquals(3, response.getData().getContent().size());
+    }
+
+    @Test
+    @DisplayName("Get history product with empty page")
+    public void get_history_product_with_empty_page() {
+        int pageNumber = 10; // Page number beyond available data
+        int pageSize = 5;
+
+        BaseResponse<Page<HistoryProductResponse>> response =
+                this.historyProductImplService.getAllHistoryProduct(pageNumber, pageSize);
+
+        Assertions.assertEquals("Danh sách lịch sử xuất nhập kho", response.getMessage());
+        Assertions.assertEquals(0, response.getData().getContent().size());
+    }
+
+    @Test
+    @DisplayName("Search history product with non-existent action")
+    public void search_with_non_existent_action() {
+        int pageNumber = 0;
+        int pageSize = 5;
+        String productName = "Sản phẩm";
+        String action = "NON_EXISTENT";
+        String orderBy = "id";
+
+        BaseResponse<Page<HistoryProductResponse>> response =
+                this.historyProductImplService.searchByNameAndAction(
+                        pageNumber, pageSize, productName, action, orderBy);
+
+        Assertions.assertEquals("Tìm kiếm và lọc lịch sử thành công!", response.getMessage());
+        Assertions.assertEquals(0, response.getData().getTotalElements());
+    }
+
+    @Test
+    @DisplayName("Create history product with empty history details")
+    public void create_history_with_empty_details() {
+        var historyProductRequest = HistoryProductRequest.builder()
+                .note("note")
+                .historyDetails(List.of())
+                .build();
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> this.historyProductImplService.createHistory(historyProductRequest, true, true));
+    }
+
+    @Test
+    @DisplayName("Create history product with zero difference")
+    public void create_history_with_zero_difference() {
+        var historyProductRequest = HistoryProductRequest.builder()
+                .note("note")
+                .historyDetails(List.of(
+                        HistoryDetail.builder().productId(1L).difference(0).build()
+                ))
+                .build();
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> this.historyProductImplService.createHistory(historyProductRequest, true, true));
+    }
+
+    @Test
+    @DisplayName("Create history product with multiple valid products")
+    public void create_history_with_multiple_valid_products() {
+        var historyProductRequest = HistoryProductRequest.builder()
+                .note("Multiple products import")
+                .historyDetails(List.of(
+                        HistoryDetail.builder().productId(1L).difference(5).build(),
+                        HistoryDetail.builder().productId(2L).difference(3).build(),
+                        HistoryDetail.builder().productId(3L).difference(2).build()
+                ))
+                .build();
+
+        BaseResponse response = this.historyProductImplService.createHistory(historyProductRequest, true, true);
+
+        Assertions.assertEquals("Lịch sử hành động thành công.", response.getMessage());
+    }
+
+    @Test
+    @DisplayName("Get history product with non-matching conditions")
+    public void get_history_with_non_matching_conditions() {
+        Map<String, String> params = Map.of(
+                "productName", "NonExistentProduct"
+        );
+
+        BaseResponse<Page<HistoryProductResponse>> response =
+                this.historyProductImplService.getHistoryProductByConditons(params);
+
+        Assertions.assertEquals(HttpStatus.OK.value(), response.getStatusCode());
+        Assertions.assertEquals(0, response.getData().getContent().size());
+    }
+
+    @Test
+    @DisplayName("Search history product with negative page number")
+    public void search_with_negative_page_number() {
+        int pageNumber = -1;
+        int pageSize = 5;
+        String productName = "Sản phẩm";
+        String action = "IMPORT";
+        String orderBy = "id";
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> this.historyProductImplService.searchByNameAndAction(
+                        pageNumber, pageSize, productName, action, orderBy));
     }
 }

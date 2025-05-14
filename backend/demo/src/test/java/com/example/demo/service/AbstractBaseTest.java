@@ -39,7 +39,7 @@ import javax.sql.DataSource;
         "spring.jpa.properties.hibernate.format_sql=true"
 })
 // Lớp abstract dùng làm base cho các test class khác
-abstract class AbstractBaseTest {
+public abstract class AbstractBaseTest {
 
     // Cấu hình Spring cho các test case
     @TestConfiguration
